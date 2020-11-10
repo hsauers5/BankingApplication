@@ -1,0 +1,37 @@
+version: '3'
+services:
+  database:
+    image: mysql:latest
+    environment:   # Set up mysql database name and password
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    networks:
+      - app-tier
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+
+  # biz logic tier
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    networks:
+      - app-tier
+    ports:
+      - "5000:5000"
+    command:
+      gunicorn -b 0.0.0.0:5000 -w 4 webapp:app
+    environment: # Set up mysql database name and password
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+
+networks:
+  app-tier:
+    driver: bridge
+
