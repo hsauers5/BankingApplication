@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, render_template
 from database_connector import DatabaseConnector
 from auth_manager import AuthManager
 from accounts_manager import AccountsManager
@@ -11,11 +11,6 @@ accounts_manager = AccountsManager(database_connector)
 transactions_manager = TransactionsManager(database_connector, accounts_manager)
 
 app = Flask(__name__)
-
-
-@app.route('/')
-def hello_world():
-    return 'Hey, we have Flask in a Docker container!'
 
 
 @app.route('/auth', methods=['POST'])
@@ -45,13 +40,22 @@ def get_token():
         return auth_manager.generate_token(username, password)
 
 
+@app.route('/token', methods=['POST'])
+def check_auth():
+    if 'token' not in request.form:
+        abort(400, 'Token not in request form.')
+
+    check_token(request)
+    return jsonify(True)
+
+
 def check_token(req):
     if 'token' not in req.form:
         abort(401)
 
     token = req.form['token']
     if len(token) > 256:
-        abort(400)
+        abort(400).form['token']
 
     auth = auth_manager.check_token(token)
 
@@ -157,12 +161,15 @@ def db():
     return jsonify(res)
 
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/home')
+def homepage():
+    return render_template('homepage.html')
+
+
 def run():
     app.run(debug=True, host='0.0.0.0', port=5000)
-
-
-'''
-
-Note to self - Restructure this to be more object-oriented. 
-
-'''
