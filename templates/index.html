@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BankingApplication</title>
+    <style>
+        body {
+            font-family: Arial;
+        }
+        form {
+            border: 3px solid #f1f1f1;
+            width: 50%;
+        }
+
+        input[type=text], input[type=password] {
+            width: 80%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        .submit {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            width: 100%;
+        }
+
+    </style>
+
+    <script>
+        window.onload = function() {
+            if (checkCookie() == false) {
+                // alert("No token found.");
+            }
+        };
+
+        function checkCookie() {
+            token = getTokenFromCookie();
+            if (token == false) {
+                return false;
+            }
+
+            var data = new FormData();
+            data.append("token", token);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/token', true);
+
+            xhr.onreadystatechange = function() { // Call a function when the state changes.
+                if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    window.location.href = "/home";
+                }
+            }
+
+            xhr.send(data);
+
+            return false;
+        }
+
+        function getTokenFromCookie() {
+            var match = document.cookie.match(new RegExp('(^| )Token=([^;]+)'));
+            if (match) {
+                return match[2];
+            }
+            else {
+                return false;
+            }
+        }
+
+        function getToken() {
+            username = document.getElementById("username").value;
+            password = document.getElementById("password").value;
+
+            var data = new FormData();
+            data.append("username", username);
+            data.append("password", password);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/auth', true);
+
+            xhr.onreadystatechange = function() { // Call a function when the state changes.
+                if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    // Request finished. Do processing here.
+                    token = xhr.response;
+                    document.cookie = "Token=" + token + "; SameSite=None; Secure";
+                    checkCookie();
+                }
+                else if (this.readyState == XMLHttpRequest.DONE && this.status != 200) {
+                    alert("Incorrect username or password. Please try again.");
+                    window.location.href = "/";
+                }
+            }
+
+            xhr.send(data);
+        }
+    </script>
+</head>
+<body>
+<center>
+    <form id="login-form" onsubmit="getToken(); return false;">
+        <div class="container">
+            <label><b>Username: </b></label>
+            <input type="text" placeholder="jdoe1999" id="username" required>
+            <p></p>
+
+            <label><b>Password: </b></label>
+            <input type="password" placeholder="********" id="password" required>
+
+            <input class="submit" type="submit" value="Log in" />
+        </div>
+    </form>
+</center>
+</body>
+</html>
