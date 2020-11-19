@@ -30,6 +30,9 @@ class AuthManager:
     def check_auth(self, username, password):
         user = self.users_manager.get_user(username)
 
+        if not user:
+            return False
+
         password_hash = self.hash_password(password)
         expected_hash = user['PasswordHash']
 
