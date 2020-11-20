@@ -1,10 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        body {
+            font-family: Arial;
+            font-size: 24px;
+        }
+        #accounts {
+            border: 3px solid #f1f1f1;
+            width: 50%;
+            min-width: 600px;
+        }
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #4CAF50;
+        }
+
+        li {
+            float: left;
+        }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .td1 {
+            margin-left:2%
+            padding-left: 5px;
+        }
+        .td2 {
+            padding-left: 100px;
+            margin-left:2%
+        }
+        .td3 {
+            padding-left: 100px;
+            margin-left:-2%;
+        }
+        #labels {
+            font-weight:bold;
+        }
+
+    </style>
     <meta charset="UTF-8">
     <title>Your Accounts</title>
+
+    <script>
+        function getTokenFromCookie() {
+            var match = document.cookie.match(new RegExp('(^| )Token=([^;]+)'));
+            if (match) {
+                return match[2];
+            }
+            else {
+                return false;
+            }
+        }
+
+        function checkAuth(token) {
+            if (token == false) {
+                return false;
+            }
+
+            var data = new FormData();
+            data.append("token", token);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/token', true);
+
+            xhr.onreadystatechange = function() { // Call a function when the state changes.
+                if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    return true;
+                }
+            }
+
+            xhr.send(data);
+
+            // return false;
+        }
+
+        function populateAccounts(token) {
+            var data = new FormData();
+            data.append("token", token);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/accounts', true);
+
+            xhr.onreadystatechange = function() {
+                if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    accounts = JSON.parse(xhr.response);
+
+                    for (var i = 0; i < accounts.length; i++) {
+                        console.log(i);
+                        account = accounts[i];
+                        type = account["Type"];
+
+                        balance = "$ " + account["Balance"].toFixed(2);
+                        number = account["ID"];
+
+                        if (type == "Checking") {
+                            // put in data
+                            document.getElementById("checking_number").innerHTML = (number);
+                            document.getElementById("checking_balance").innerHTML = (balance);
+                            document.getElementById("checking_type").innerHTML = (type);
+
+                            // make visible
+                            document.getElementById("checking").style.display = "";
+                        }
+                        if (type == "Savings") {
+                            console.log(account);
+                            // put in data
+                            document.getElementById("savings_number").innerHTML = (number);
+                            document.getElementById("savings_balance").innerHTML = (balance);
+                            document.getElementById("savings_type").innerHTML = (type);
+
+                            // make visible
+                            document.getElementById("savings").style.display = "";
+                        }
+                    }
+                }
+                else if (this.readyState == XMLHttpRequest.DONE && this.status != 200) {
+                    console.log(this.status);
+                    alert("Incorrect username or password. Please try again.");
+                    window.location.href = "/";
+                }
+            }
+
+            xhr.send(data);
+        }
+
+        function populate() {
+            // return;
+
+            // get cookie
+            token = getTokenFromCookie();
+
+            // if auth fails, redirect
+            if (checkAuth(token) == false) {
+                document.cookie = "";
+                document.location.href="/";
+            }
+            // else, populate accounts
+            populateAccounts(token);
+        }
+
+        function logout() {
+            document.cookie = "Token=";
+            document.location.href = "/";
+        }
+    </script>
 </head>
-<body>
+<body onload="populate()">
+
+<div id="menu">
+<ul>
+    <li><a href="/home">Home</a></li>
+    <li><a href="/transactions">View Transactions</a></li>
+    <li><a href="/send">Send Money</a></li>
+    <li><a href="javascript: logout()">Logout</a></li>
+</ul>
+</div>
+<p></p>
+<center>
+<div id="accounts">
+    <table>
+
+        <tr class="account" id="labels">
+        <td class="td1">Number</td>
+        <td class="td2">Type</td>
+        <td class="td3">Balance</td>
+        </tr>
+
+        <tr class="account" id="checking" style="display:none;">
+            <td class="td1">
+                <div class="label" id="checking_number">
+                    000
+                </div>
+            </td>
+            <td class="td2">
+                <div class="label" id="checking_type">
+                    Checking
+                </div>
+            </td>
+
+            <td class="td3">
+            <div class="balance" id="checking_balance">
+                $ 0.00
+            </div>
+            </td>
+        </tr>
+
+
+        <tr class="account" id="savings" style="display:none;">
+            <td class="td1">
+                <div class="label" id="savings_number">
+                    000
+                </div>
+            </td>
+            <td class="td2">
+                <div class="label" id="savings_type">
+                    Savings
+                </div>
+            </td>
+
+            <td class="td3">
+            <div class="balance" id="savings_balance">
+                $ 0.00
+            </div>
+            </td>
+        </tr>
+
+</table>
+
+</div>
+</center>
 
 </body>
 </html>
