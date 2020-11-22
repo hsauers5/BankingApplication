@@ -114,7 +114,7 @@ def fetch_transactions():
     check_token(request)
     username = get_username_from_request(request)
 
-    transactions = transactions_manager.fetch_all_transactions(username)
+    transactions = [t.json() for t in transactions_manager.fetch_all_transactions(username)]
     return jsonify(transactions)
 
 
@@ -166,9 +166,14 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/home')
+@app.route('/accounts')
 def homepage():
     return render_template('homepage.html')
+
+
+@app.route('/transactions', methods=['GET'])
+def transactions():
+    return render_template('transactions.html')
 
 
 def run():
