@@ -18,7 +18,13 @@ class TransactionsManager:
     def fetch_account_transactions(self, account):
         query = f'SELECT * FROM transactions WHERE FromID = {account.id}'
         res = self.database_connector.execute_query(query)
-        return [Transaction(transaction_dict=t) for t in res]
+        txs = [Transaction(transaction_dict=t) for t in res]
+        query = f'SELECT * FROM transactions WHERE ToID = {account.id}'
+        res = self.database_connector.execute_query(query)
+        new_txs = [Transaction(transaction_dict=t) for t in res]
+
+        txs.extend(new_txs)
+        return txs
 
     # @TODO add specific errors; webapp.py should not handle validation
     def send_money(self, amount, timestamp, from_id, to_id):
