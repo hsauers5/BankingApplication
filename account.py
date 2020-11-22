@@ -14,21 +14,6 @@ class Account:
         self.balance = balance
         return self.balance
 
-    def get_transactions(self):
-        return self.transactions
-
-    def set_transactions(self, transactions):
-        self.transactions.extend(transactions)
-        return self.transactions
-
-    def add_transaction(self, transaction):
-        self.transactions.append(transaction)
-        return self.transactions
-
-    # @TODO
-    def post(self, database_connector):
-        pass
-
     def update(self, database_connector):
         query = f'UPDATE accounts SET Type = "{self.type}", Balance = {self.balance}, Username = "{self.username}" WHERE ID = {self.id} ;'
         res = database_connector.execute_query(query)
