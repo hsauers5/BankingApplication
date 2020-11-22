@@ -3,6 +3,7 @@ from database_connector import DatabaseConnector
 from auth_manager import AuthManager
 from accounts_manager import AccountsManager
 from transactions_manager import TransactionsManager
+import time
 
 
 database_connector = DatabaseConnector()
@@ -123,7 +124,7 @@ def send_money():
     check_token(request)
     try:
         amount = float(get_value_from_request(request, 'amount'))
-        timestamp = int(get_value_from_request(request, 'timestamp'))
+        timestamp = int(time.time())
         from_id = int(get_value_from_request(request, 'from'))
         to_id = int(get_value_from_request(request, 'to'))
     except TypeError:
@@ -175,6 +176,10 @@ def homepage():
 def transactions():
     return render_template('transactions.html')
 
+
+@app.route('/sendmoney', methods=['GET'])
+def sendmoney():
+    return render_template('sendmoney.html')
 
 def run():
     app.run(debug=True, host='0.0.0.0', port=5000)

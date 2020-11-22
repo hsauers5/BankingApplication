@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: Arial;
+            font-size: 24px;
+        }
+        #transactions {
+            border: 3px solid #f1f1f1;
+            width: 80%;
+            min-width: 820px;
+        }
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #4CAF50;
+        }
+
+        li {
+            float: left;
+        }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .td1 {
+            margin-left:2%
+            padding-left: 5px;
+        }
+        .td2 {
+            padding-left: 100px;
+            margin-left:2%
+        }
+        .td3 {
+            padding-left: 100px;
+            margin-left:-2%;
+        }
+        #labels {
+            font-weight:bold;
+        }
+        input, select {
+            width: 40%;
+            padding: 12px 10px;
+            margin: 8px 0;
+            display: inline-block;
+        }
+
+        label {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        .submit {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 25%;
+            width: 50%;
+            border: none;
+            text-align: center;
+        }
+
+        form {
+            padding-left: 20%;
+            width: 60%;
+        }
+        .container {
+            border: 3px solid #f1f1f1;
+        }
+
+    </style>
+    <meta charset="UTF-8">
+    <title>View Transactions</title>
+
+    <script>
+        function getTokenFromCookie() {
+            var match = document.cookie.match(new RegExp('(^| )Token=([^;]+)'));
+            if (match) {
+                return match[2];
+            }
+            else {
+                return false;
+            }
+        }
+
+        function checkAuth(token) {
+            if (token == false) {
+                return false;
+            }
+
+            var data = new FormData();
+            data.append("token", token);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/token', true);
+
+            xhr.onreadystatechange = function() { // Call a function when the state changes.
+                if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    return true;
+                }
+            }
+
+            xhr.send(data);
+        }
+
+        function send(token, amount, to, from) {
+            var data = new FormData();
+            data.append("token", token);
+            data.append("amount", amount);
+            data.append("to", to);
+            data.append("from", from);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/sendmoney', true);
+
+            xhr.onreadystatechange = function() { // Call a function when the state changes.
+                if (this.readyState == XMLHttpRequest.DONE) {
+                    if (this.status == 200) {
+                        alert('Success!');
+                        document.location.href = '/accounts';
+                    }
+                    else {
+                        if (amount < 0) {
+                            alert("Please check the amount of money you want to send and try again.");
+                            return;
+                        }
+                        else if (this.response.includes("Insufficient")) {
+                            alert("You do not have enough funds in your account to make this transaction.");
+                            return;
+                        }
+                        else if (this.response.includes("may not exist")) {
+                            alert("Please check your input. The receiver's account may not exist.");
+                            return;
+                        }
+                        else {
+                            alert("Please double-check your input and try again.");
+                            return;
+                        }
+                    }
+                }
+            }
+
+            xhr.send(data);
+
+        }
+
+        function sendmoney() {
+            // get token
+            token = getTokenFromCookie();
+
+            // if auth fails, redirect
+            if (checkAuth(token) == false) {
+                document.cookie = "";
+                document.location.href="/";
+            }
+
+            // send tx
+            var amount = document.getElementById("amount").value;
+            var to = document.getElementById("to").value;
+            var from = document.getElementById("from").value;
+
+            send(token, amount, to, from);
+        }
+
+        function populate() {
+            // get token
+            token = getTokenFromCookie();
+
+            // if auth fails, redirect
+            if (checkAuth(token) == false) {
+                document.cookie = "";
+                document.location.href="/";
+            }
+
+            // get accounts
+            var data = new FormData();
+            data.append("token", token);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/accounts', true);
+
+            xhr.onreadystatechange = function() {
+                if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    accounts = JSON.parse(xhr.response);
+
+                    from = document.getElementById("from");
+                    for (var i = 0; i < accounts.length; i++) {
+                        account = accounts[i];
+                        type = account["Type"];
+                        id = account["ID"];
+                        balance = account["Balance"].toFixed(2);
+
+                        acct = document.createElement("option");
+                        acct.setAttribute("value", id);
+                        acct.innerHTML = id + ' (' + type + ')' + ' | Balance of $' + balance;
+
+                        from.appendChild(acct);
+                    }
+                }
+                else if (this.readyState == XMLHttpRequest.DONE && this.status != 200) {
+                    console.log(this.status);
+                    // alert("Incorrect username or password. Please try again.");
+                    window.location.href = "/";
+                }
+            }
+
+            xhr.send(data);
+        }
+
+        function logout() {
+            document.cookie = "Token=";
+            document.location.href = "/";
+        }
+    </script>
+</head>
+<body onload="populate()">
+
+<div id="menu">
+<ul>
+    <li><a href="/accounts">Home</a></li>
+    <li><a href="/transactions">View Transactions</a></li>
+    <li><a href="/sendmoney">Send Money</a></li>
+    <li><a href="javascript: logout()">Logout</a></li>
+</ul>
+</div>
+<p></p>
+<form id="sendmoney-form" onsubmit="sendmoney(); return false;">
+        <div class="container">
+            <label><b>Amount: $</b></label>
+            <input type="text" placeholder="0.00" id="amount" required>
+            <p></p>
+
+            <label><b>Receiver Account ID: </b></label>
+            <input type="text" placeholder="" id="to" required>
+
+            <p></p>
+            <label><b>Your Selected Account ID: </b></label>
+            <select id="from"></select>
+
+            <p></p>
+            <input class="submit" type="submit" value="Submit" />
+        </div>
+    </form>
+</body>
+</html>
