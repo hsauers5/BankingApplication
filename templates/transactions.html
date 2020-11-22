@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: Arial;
+            font-size: 24px;
+        }
+        #transactions {
+            border: 3px solid #f1f1f1;
+            width: 80%;
+            min-width: 820px;
+        }
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #4CAF50;
+        }
+
+        li {
+            float: left;
+        }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .td1 {
+            margin-left:2%
+            padding-left: 5px;
+        }
+        .td2 {
+            padding-left: 100px;
+            margin-left:2%
+        }
+        .td3 {
+            padding-left: 100px;
+            margin-left:-2%;
+        }
+        #labels {
+            font-weight:bold;
+        }
+
+    </style>
+    <meta charset="UTF-8">
+    <title>View Transactions</title>
+
+    <script>
+        function getTokenFromCookie() {
+            var match = document.cookie.match(new RegExp('(^| )Token=([^;]+)'));
+            if (match) {
+                return match[2];
+            }
+            else {
+                return false;
+            }
+        }
+
+        function checkAuth(token) {
+            if (token == false) {
+                return false;
+            }
+
+            var data = new FormData();
+            data.append("token", token);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/token', true);
+
+            xhr.onreadystatechange = function() { // Call a function when the state changes.
+                if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    return true;
+                }
+            }
+
+            xhr.send(data);
+
+            // return false;
+        }
+
+
+        function fetchTransactions(token) {
+            var data = new FormData();
+            data.append("token", token);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/transactions', true);
+
+            xhr.onreadystatechange = function() {
+                if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    transactions = JSON.parse(xhr.response);
+                    populateTransactions(transactions);
+                }
+                else if (this.readyState == XMLHttpRequest.DONE && this.status != 200) {
+                    console.log(this.status);
+                    window.location.href = "/";
+                }
+            }
+
+            xhr.send(data);
+        }
+
+        function epochToDatetime(epoch) {
+            var date = new Date(epoch);
+            return date.toString().substring(0, 24);
+        }
+
+        function sortTransactions(txs) {
+            var on = document.getElementById("sort_on").value;
+            var by = document.getElementById("sort_by").value;
+
+            if (on == "date" && by == "desc") {
+                return txs.sort(function(a,b) {
+                    return a['timestamp'] < b['timestamp']
+                });
+            }
+            else if (on == "date" && by == "asc") {
+                return txs.sort(function(a,b) {
+                    return a['timestamp'] > b['timestamp']
+                });
+            }
+            else if (on == "amount" && by == "desc") {
+                return txs.sort(function(a,b) {
+                    return a['amount'] < b['amount']
+                });
+            }
+            else if (on == "amount" && by == "asc") {
+                return txs.sort(function(a,b) {
+                    return a['amount'] > b['amount']
+                });
+            }
+        }
+
+        function populateTransactions(txs) {
+            txs = sortTransactions(txs);
+
+            var tx_table = document.getElementById("tx_table");
+
+            // remove all existing tx's
+            var old_txs = document.getElementsByClassName("transaction");
+            while (old_txs[0]) {
+                old_txs[0].parentNode.removeChild(old_txs[0]);
+            }
+
+            for (var i = 0; i < txs.length; i++) {
+                var transaction = txs[i];
+
+                tx_html = '' +
+                '<tr class="transaction" style="display:none;">' +
+                '<td class="td1">' +
+                '    <div class="label">' +
+                '        ' + epochToDatetime(transaction['timestamp']) +
+                '    </div>' +
+                '</td>' +
+                '<td class="td2">' +
+                '    <div class="label">' +
+                '        ' + transaction['amount'] +
+                '    </div>' +
+                '</td>' +
+                '<td class="td2">' +
+                '    <div class="label">' +
+                '        ' + transaction['from'] +
+                '    </div>' +
+                '</td>' +
+                '<td class="td3">' +
+                '   <div class="balance">' +
+                '       ' + transaction['to'] +
+                '   </div>' +
+                '</td>' +
+                '</tr>'
+
+                var tx = document.createElement("tr");
+                tx.setAttribute("class", "transaction");
+                tx.innerHTML = tx_html;
+
+                tx_table.appendChild(tx);
+            }
+        }
+
+        function populate() {
+            // return;
+
+            // get cookie
+            token = getTokenFromCookie();
+
+            // if auth fails, redirect
+            if (checkAuth(token) == false) {
+                document.cookie = "";
+                document.location.href="/";
+            }
+            // else, populate transactions
+            fetchTransactions(token);
+        }
+
+        function logout() {
+            document.cookie = "Token=";
+            document.location.href = "/";
+        }
+    </script>
+</head>
+<body onload="populate()">
+
+<div id="menu">
+<ul>
+    <li><a href="/accounts">Home</a></li>
+    <li><a href="/transactions">View Transactions</a></li>
+    <li><a href="/send">Send Money</a></li>
+    <li><a href="javascript: logout()">Logout</a></li>
+</ul>
+</div>
+<p></p>
+<center>
+
+    Sort by:
+    <select id="sort_on" onchange="populate()">
+        <option value="date" selected>Date</option>
+        <option value="amount">Amount</option>
+    </select>
+
+    <select id="sort_by" onchange="populate()">
+        <option value="asc">Ascending</option>
+        <option value="desc" selected>Descending</option>
+    </select>
+
+<p></p>
+<div id="transactions">
+<table id="tx_table">
+
+        <tr class="account" id="labels">
+        <td class="td1">Date/Time</td>
+        <td class="td2">Amount</td>
+        <td class="td2">From Account ID</td>
+        <td class="td3">To Account ID</td>
+        </tr>
+
+        <tr class="transaction" style="display:none;">
+            <td class="td1">
+                <div class="label">
+                    Datestamp
+                </div>
+            </td>
+            <td class="td2">
+                <div class="label">
+                    Amount
+                </div>
+            </td>
+
+            <td class="td2">
+                <div class="label">
+                    From ID
+                </div>
+            </td>
+
+            <td class="td3">
+            <div class="balance">
+                To ID
+            </div>
+            </td>
+        </tr>
+
+</table>
+
+</div>
+</center>
+
+</body>
+</html>
