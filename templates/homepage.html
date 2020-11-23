@@ -141,8 +141,11 @@
 
             // if auth fails, redirect
             if (checkAuth(token) == false) {
-                document.cookie = "";
-                document.location.href="/";
+                token = getTokenFromCookie();
+                if (checkAuth(token) == false) {
+                    document.cookie = "";
+                    document.location.href="/";
+                }
             }
             // else, populate accounts
             populateAccounts(token);

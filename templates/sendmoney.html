@@ -156,14 +156,23 @@
 
             // if auth fails, redirect
             if (checkAuth(token) == false) {
-                document.cookie = "";
-                document.location.href="/";
+                token = getTokenFromCookie();
+                if (checkAuth(token) == false) {
+                    document.cookie = "";
+                    document.location.href="/";
+                }
             }
 
             // send tx
             var amount = document.getElementById("amount").value;
             var to = document.getElementById("to").value;
             var from = document.getElementById("from").value;
+
+            // block tx to same acct
+            if (to == from) {
+                alert("You cannot send money to the same account. Please select a different account.");
+                return;
+            }
 
             send(token, amount, to, from);
         }
