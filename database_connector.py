@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import time
 from pymysql import OperationalError
 from sqlalchemy.exc import OperationalError, ResourceClosedError
@@ -31,10 +31,15 @@ class DatabaseConnector:
                     raise e
                 time.sleep(1)
 
-    def execute_query(self, query):
-        res = self.connection.execute(query)
+    def execute_query(self, query, count=0):
+        res = self.connection.execute(text(query).execution_options(autocommit=True))
         try:
             res = res.fetchall()
             return [dict(row) for row in res]
         except ResourceClosedError:
             return True
+        except OperationalError as e:
+            if count < 5:
+                return self.execute_query(query, count+1)
+            else:
+                raise e

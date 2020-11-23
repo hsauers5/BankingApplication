@@ -8,30 +8,29 @@ class TransactionsManager:
 
     def fetch_all_transactions(self, username):
         accounts = self.accounts_manager.fetch_accounts(username)
-        transactions_list = []
+        transactions_list = set()
         for account in accounts:
             transactions = self.fetch_account_transactions(account)
-            transactions_list.extend(transactions)
+            transactions_list.update(transactions)
 
         return transactions_list
 
     def fetch_account_transactions(self, account):
-        query = f'SELECT * FROM transactions WHERE FromID = {account.id}'
+        query = f'SELECT DISTINCT * FROM transactions WHERE FromID = {account.id} OR ToID = {account.id}'
         res = self.database_connector.execute_query(query)
-        txs = [Transaction(transaction_dict=t) for t in res]
-        query = f'SELECT * FROM transactions WHERE ToID = {account.id}'
-        res = self.database_connector.execute_query(query)
-        new_txs = [Transaction(transaction_dict=t) for t in res]
+        txs = set([Transaction(transaction_dict=t) for t in res])
 
-        txs.extend(new_txs)
         return txs
 
-    # @TODO add specific errors; webapp.py should not handle validation
     def send_money(self, amount, timestamp, from_id, to_id):
         transaction = Transaction(amount, timestamp, from_id, to_id)
 
         # ensure both accounts exist - else, fail
         if self.accounts_manager.fetch_account(from_id) is None or self.accounts_manager.fetch_account(to_id) is None:
+            return False
+
+        # ensure not sending to same account
+        if from_id == to_id:
             return False
 
         # add tx record

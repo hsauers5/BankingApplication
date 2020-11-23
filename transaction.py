@@ -5,6 +5,7 @@ class Transaction:
             self.timestamp = transaction_dict['Datetime']
             self.from_id = transaction_dict['FromID']
             self.to_id = transaction_dict['ToID']
+            self.tx_id = transaction_dict['ID']
         else:
             if amount is None or timestamp is None or from_id is None or to_id is None:
                 raise TypeError('__init__() missing positional argument!')
@@ -33,3 +34,9 @@ class Transaction:
 
     def json(self):
         return {'timestamp': self.timestamp, 'amount': self.amount, 'from': self.from_id, 'to': self.to_id}
+
+    def __eq__(self, other):
+        return other and self.tx_id == other.tx_id
+
+    def __hash__(self):
+        return self.tx_id

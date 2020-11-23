@@ -12,6 +12,7 @@ accounts_manager = AccountsManager(database_connector)
 transactions_manager = TransactionsManager(database_connector, accounts_manager)
 
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
 @app.route('/auth', methods=['POST'])

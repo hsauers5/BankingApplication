@@ -1,8 +1,8 @@
 version: '3'
 services:
   database:
-    image: mysql:latest
-    environment:   # Set up mysql database name and password
+    image: mysql/mysql-server:latest
+    environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: db
       MYSQL_USER: user
@@ -25,7 +25,7 @@ services:
       - "5000:5000"
     command:
       gunicorn -b 0.0.0.0:5000 -w 4 webapp:app
-    environment: # Set up mysql database name and password
+    environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: db
       MYSQL_USER: user
