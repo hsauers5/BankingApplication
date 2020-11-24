@@ -11,3 +11,4 @@ Build instructions:
   docker-compose up
 ```
 
+Demo video: https://www.youtube.com/watch?v=PyTSnxwFQTM
