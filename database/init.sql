@@ -39,10 +39,25 @@ INSERT INTO db.transactions (Datetime, Amount, FromID, ToID) VALUES (1604961965,
 INSERT INTO db.transactions (Datetime, Amount, FromID, ToID) VALUES (1604934572, 125.00, 2, 1);
 
 -- ==================
-INSERT INTO db.users (Username, Name, PasswordHash, Account1ID, Account2ID) VALUES ("johndoe", "john doe", "5E884898DA28047151D0E56F8DC6292773603D0D6AABBDD62A11EF721D1542D8", 3, 4);
+-- passwords for marselluswallace and vincentvega are just "password"
+INSERT INTO db.users (Username, Name, PasswordHash, Account1ID, Account2ID) VALUES ("marselluswallace", "marsellus wallace", "5E884898DA28047151D0E56F8DC6292773603D0D6AABBDD62A11EF721D1542D8", 3, 4);
+INSERT INTO db.accounts (Username, Type, Balance)  VALUES ("marselluswallace", "Checking", 300.00);
+INSERT INTO db.accounts (Username, Type, Balance)  VALUES ("marselluswallace", "Savings", 1200.00);
 
-INSERT INTO db.accounts (Username, Type, Balance)  VALUES ("johndoe", "Checking", 300.00);
-INSERT INTO db.accounts (Username, Type, Balance)  VALUES ("johndoe", "Savings", 1200.00);
+INSERT INTO db.users (Username, Name, PasswordHash, Account1ID, Account2ID) VALUES ("vincentvega", "vincent vega", "5E884898DA28047151D0E56F8DC6292773603D0D6AABBDD62A11EF721D1542D8", 5, 6);
+INSERT INTO db.accounts (Username, Type, Balance)  VALUES ("vincentvega", "Checking", 100000.00);
+INSERT INTO db.accounts (Username, Type, Balance)  VALUES ("vincentvega", "Savings", 1200000.00);
 
-INSERT INTO db.transactions (Datetime, Amount, FromID, ToID) VALUES (1604961965, 80.00, 1, 2);
-INSERT INTO db.transactions (Datetime, Amount, FromID, ToID) VALUES (1604934572, 34.00, 2, 1);
+-- ==========
+
+INSERT INTO db.transactions (Datetime, Amount, FromID, ToID) VALUES (1604961965, 80.00, 3, 4);
+INSERT INTO db.transactions (Datetime, Amount, FromID, ToID) VALUES (1604934572, 34.00, 4, 3);
+
+-- harry & marselluswallace send money
+INSERT INTO db.transactions (Datetime, Amount, FromID, ToID) VALUES (1585073799, 500.00, 1, 3);
+INSERT INTO db.transactions (Datetime, Amount, FromID, ToID) VALUES (1606240000, 600.00, 3, 1);
+
+
+-- marselluswallace & vincentvega send money
+INSERT INTO db.transactions (Datetime, Amount, FromID, ToID) VALUES (1585073799, 500.00, 3, 5);
+INSERT INTO db.transactions (Datetime, Amount, FromID, ToID) VALUES (1606240000, 600.00, 5, 4);

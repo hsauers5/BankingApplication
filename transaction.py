@@ -1,5 +1,5 @@
 class Transaction:
-    def __init__(self, amount=None, timestamp=None, from_id=None, to_id=None, transaction_dict=None):
+    def __init__(self, amount=None, timestamp=None, from_id=None, to_id=None, transaction_dict=None, account_username=None):
         if transaction_dict is not None:
             self.amount = transaction_dict['Amount']
             self.timestamp = transaction_dict['Datetime']
@@ -14,6 +14,8 @@ class Transaction:
                 self.timestamp = timestamp
                 self.from_id = from_id
                 self.to_id = to_id
+
+        self.account_username = account_username
 
     def get_amount(self):
         return self.amount
@@ -32,20 +34,35 @@ class Transaction:
         res = database_connector.execute_query(query)
         return res
 
-    def get_receiver_name(self, accounts_manager):
+    def get_receiver_account(self, accounts_manager):
         acc = accounts_manager.fetch_account(self.to_id)
-        return acc.username
+        return acc
 
-    def get_sender_type(self, accounts_manager):
+    def get_sender_account(self, accounts_manager):
         acc = accounts_manager.fetch_account(self.from_id)
-        return acc.type
+        return acc
 
     def json(self, accounts_manager=None):
         if accounts_manager is None:
             return {'timestamp': self.timestamp, 'amount': self.amount, 'from': self.from_id, 'to': self.to_id}
         else:
+            sender_acc = self.get_sender_account(accounts_manager)
+            receiver_acc = self.get_receiver_account(accounts_manager)
+
+            if sender_acc.username == self.account_username:
+                sender_type = sender_acc.type
+                receiver_name = receiver_acc.username
+            if receiver_acc.username == self.account_username:
+                receiver_name = receiver_acc.type
+                sender_type = sender_acc.username
+
+            if receiver_acc.username == sender_acc.username:
+                sender_type = sender_acc.type
+                receiver_name = receiver_acc.type
+
             return {'timestamp': self.timestamp, 'amount': self.amount, 'from': self.from_id, 'to': self.to_id,
-                    'receiver_name': self.get_receiver_name(accounts_manager), 'sender_type': self.get_sender_type(accounts_manager)}
+                    'sender_type': sender_type, 'receiver_name': receiver_name}
+
 
     def __eq__(self, other):
         return other and self.tx_id == other.tx_id

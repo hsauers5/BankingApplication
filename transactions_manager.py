@@ -18,7 +18,7 @@ class TransactionsManager:
     def fetch_account_transactions(self, account):
         query = f'SELECT DISTINCT * FROM transactions WHERE FromID = {account.id} OR ToID = {account.id}'
         res = self.database_connector.execute_query(query)
-        txs = set([Transaction(transaction_dict=t) for t in res])
+        txs = set([Transaction(transaction_dict=t, account_username=account.username) for t in res])
 
         return txs
 
