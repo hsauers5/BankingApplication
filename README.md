@@ -12,3 +12,4 @@ Build instructions:
 ```
 
 Demo video: https://www.youtube.com/watch?v=PyTSnxwFQTM
+Project docs: https://drive.google.com/drive/folders/111uHyGgA9WWyJWJd7_asO-N7COljHfdF?usp=sharing
