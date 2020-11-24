@@ -32,8 +32,20 @@ class Transaction:
         res = database_connector.execute_query(query)
         return res
 
-    def json(self):
-        return {'timestamp': self.timestamp, 'amount': self.amount, 'from': self.from_id, 'to': self.to_id}
+    def get_receiver_name(self, accounts_manager):
+        acc = accounts_manager.fetch_account(self.to_id)
+        return acc.username
+
+    def get_sender_type(self, accounts_manager):
+        acc = accounts_manager.fetch_account(self.from_id)
+        return acc.type
+
+    def json(self, accounts_manager=None):
+        if accounts_manager is None:
+            return {'timestamp': self.timestamp, 'amount': self.amount, 'from': self.from_id, 'to': self.to_id}
+        else:
+            return {'timestamp': self.timestamp, 'amount': self.amount, 'from': self.from_id, 'to': self.to_id,
+                    'receiver_name': self.get_receiver_name(accounts_manager), 'sender_type': self.get_sender_type(accounts_manager)}
 
     def __eq__(self, other):
         return other and self.tx_id == other.tx_id

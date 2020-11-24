@@ -116,7 +116,7 @@ def fetch_transactions():
     check_token(request)
     username = get_username_from_request(request)
 
-    transactions = [t.json() for t in transactions_manager.fetch_all_transactions(username)]
+    transactions = [t.json(accounts_manager) for t in transactions_manager.fetch_all_transactions(username)]
     return jsonify(transactions)
 
 

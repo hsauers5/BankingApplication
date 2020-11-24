@@ -164,12 +164,12 @@
                 '</td>' +
                 '<td class="td2">' +
                 '    <div class="label">' +
-                '        ' + transaction['from'] +
+                '        ' + transaction['sender_type'] + ' (Account #' + transaction['from'] + ')' +
                 '    </div>' +
                 '</td>' +
                 '<td class="td3">' +
                 '   <div class="balance">' +
-                '       ' + transaction['to'] +
+                '       ' + transaction['receiver_name'] + ' (Account #' + transaction['to'] + ')' +
                 '   </div>' +
                 '</td>' +
                 '</tr>'
@@ -237,8 +237,8 @@
         <tr class="account" id="labels">
         <td class="td1">Date/Time</td>
         <td class="td2">Amount</td>
-        <td class="td2">From Account ID</td>
-        <td class="td3">To Account ID</td>
+        <td class="td2">From</td>
+        <td class="td3">To</td>
         </tr>
 
         <tr class="transaction" style="display:none;">
