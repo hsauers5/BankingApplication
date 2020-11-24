@@ -22,7 +22,7 @@ class AuthManager:
         try:
             decoded_token = base64.b64decode(token).decode('UTF-8')
             username, password = decoded_token.split(':')
-        # @TODO this is bad.
+        # @TODO
         except:
             return False
         return self.check_auth(username, password)
@@ -47,6 +47,6 @@ class AuthManager:
             username, password = decoded_token.split(':')
             return username
 
-        # @TODO this is bad.
+        # @TODO
         except:
             return False

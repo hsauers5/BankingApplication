@@ -63,7 +63,6 @@ class Transaction:
             return {'timestamp': self.timestamp, 'amount': self.amount, 'from': self.from_id, 'to': self.to_id,
                     'sender_type': sender_type, 'receiver_name': receiver_name}
 
-
     def __eq__(self, other):
         return other and self.tx_id == other.tx_id
 
