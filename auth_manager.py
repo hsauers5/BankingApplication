@@ -39,7 +39,7 @@ class AuthManager:
         return self.compare_hashes(password_hash, expected_hash)
 
     def generate_token(self, username, password):
-        return base64.b64encode(f'{username}:{password}'.encode('UTF-8'))
+        return base64.b64encode(f'{username}:{password}'.encode('UTF-8')).decode('UTF-8')
 
     def get_username_from_token(self, token):
         try:
