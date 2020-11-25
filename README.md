@@ -11,6 +11,8 @@ Build instructions:
   docker-compose up
 ```
 
+Users should use the latest version of Firefox. Other browsers may be unstable. 
+
 ### Demo video
 https://www.youtube.com/watch?v=PyTSnxwFQTM
 ### Project docs
